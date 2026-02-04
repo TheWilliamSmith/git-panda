@@ -10,6 +10,8 @@ export async function getStagedDiff(): Promise<string> {
       throw new Error("Not a git repository");
     }
 
+    await git.add("./*");
+
     const diff = await git.diff(["--staged"]);
 
     if (!diff || diff.trim().length === 0) {

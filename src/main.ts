@@ -11,7 +11,7 @@ async function main() {
 
     const diff = await getStagedDiff();
 
-    console.log("test if we can connect to anthropic");
+    // console.log("test if we can connect to anthropic");
     //const canConnect = await testAnthropicClient();
 
     // if (!canConnect) {

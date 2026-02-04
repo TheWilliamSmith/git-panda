@@ -5,6 +5,7 @@ const git = simpleGit();
 export async function createCommit(message: string): Promise<void> {
   try {
     await git.commit(message);
+    await git.push();
     console.log("\n✅ Commit created successfully!");
     console.log(`📝 Message: ${message}`);
   } catch (error: any) {
