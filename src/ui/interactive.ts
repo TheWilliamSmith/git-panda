@@ -8,12 +8,6 @@ export async function selectCommitMessage(suggestions: CommitSuggestion[]): Prom
     short: s.message,
   }));
 
-  choices.push({
-    name: "✏️  Write my own message",
-    value: "custom",
-    short: "Custom message",
-  });
-
   const { selected } = await inquirer.prompt([
     {
       type: "rawlist",
@@ -23,18 +17,6 @@ export async function selectCommitMessage(suggestions: CommitSuggestion[]): Prom
       pageSize: 10,
     },
   ]);
-
-  if (selected === "custom") {
-    const { customMessage } = await inquirer.prompt([
-      {
-        type: "input",
-        name: "customMessage",
-        message: "Enter your commit message:",
-        validate: (input: string) => input.trim().length > 0 || "Message cannot be empty",
-      },
-    ]);
-    return customMessage;
-  }
 
   const { shouldEdit } = await inquirer.prompt([
     {

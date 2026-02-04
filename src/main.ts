@@ -12,12 +12,12 @@ async function main() {
     const diff = await getStagedDiff();
 
     console.log("test if we can connect to anthropic");
-    const canConnect = await testAnthropicClient();
+    //const canConnect = await testAnthropicClient();
 
-    if (!canConnect) {
-      console.error("Failed to connect to Anthropic API. Exiting.");
-      process.exit(1);
-    }
+    // if (!canConnect) {
+    //   console.error("Failed to connect to Anthropic API. Exiting.");
+    //   process.exit(1);
+    // }
 
     const suggestions = await analyseCommit(diff);
 
