@@ -59,14 +59,19 @@ ${diff}`,
       throw new Error("Expected text content from Anthropic API");
     }
 
-    const regex = /\[[^]*?\]/;
-    const jsonMatch = regex.exec(firstContent.text);
+    const rawText = firstContent.text;
+    const start = rawText.indexOf("[");
+    const end = rawText.lastIndexOf("]");
 
-    if (!jsonMatch) {
-      throw new Error("No JSON array found in response");
+    if (start === -1 || end === -1 || start >= end) {
+      throw new Error(`No JSON array found in response. Raw output:\n${rawText}`);
     }
 
-    return JSON.parse(jsonMatch[0]) as CommitSuggestion[];
+    let jsonStr = rawText.slice(start, end + 1);
+
+    jsonStr = jsonStr.replace(/,\s*([\]}])/g, "$1");
+
+    return JSON.parse(jsonStr) as CommitSuggestion[];
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to analyze commit: ${message}`);
