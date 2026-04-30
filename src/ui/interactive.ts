@@ -20,6 +20,8 @@ export async function selectCommitMessage(suggestions: CommitSuggestion[]): Prom
     short: s.message,
   }));
 
+  console.log(""); // Add space before the prompt
+
   const { selected } = await inquirer.prompt<SelectedAnswer>([
     {
       type: "rawlist",

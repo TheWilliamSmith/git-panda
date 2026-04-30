@@ -3,12 +3,10 @@ import { analyseCommit } from "./ai/analyseCommit";
 import { selectCommitMessage } from "./ui/interactive";
 import { createCommit } from "./git/commit";
 import { setConfig, showConfig } from "./commands/config";
-import { logger } from "./services/logger.service";
+import { spinner } from "./services/spinner.service";
 
 async function main(): Promise<void> {
   try {
-    logger.info("Using Git Ai Commit");
-
     const args = process.argv.slice(2);
 
     if (args[0] === "config") {
@@ -22,15 +20,21 @@ async function main(): Promise<void> {
       }
     }
 
+    console.log("\n🐼 Git Panda - AI-Powered Commit Generator\n");
+
     const diff = await getStagedDiff();
     const suggestions = await analyseCommit(diff);
 
     const selectedMessage = await selectCommitMessage(suggestions);
 
     await createCommit(selectedMessage);
+
+    console.log(""); // Final spacing
   } catch (error: unknown) {
+    spinner.stop();
     const message = error instanceof Error ? error.message : String(error);
-    logger.error(`Error: ${message}`);
+    console.error(`\n❌ Error: ${message}\n`);
+    process.exit(1);
   }
 }
 

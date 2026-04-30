@@ -1,4 +1,5 @@
 import { initAnthropicClient } from "./client";
+import { spinner } from "../services/spinner.service";
 
 export interface CommitSuggestion {
   message: string;
@@ -23,6 +24,7 @@ function isTextContent(content: unknown): content is AnthropicTextContent {
 
 export async function analyseCommit(diff: string): Promise<CommitSuggestion[]> {
   try {
+    spinner.start("Analyzing changes with AI...");
     const client = initAnthropicClient();
 
     const response = await client.messages.create({
@@ -71,8 +73,11 @@ ${diff}`,
 
     jsonStr = jsonStr.replace(/,\s*([\]}])/g, "$1");
 
-    return JSON.parse(jsonStr) as CommitSuggestion[];
+    const suggestions = JSON.parse(jsonStr) as CommitSuggestion[];
+    spinner.succeed(`Generated ${suggestions.length} commit suggestions`);
+    return suggestions;
   } catch (error: unknown) {
+    spinner.fail("Failed to analyze commit");
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to analyze commit: ${message}`);
   }
