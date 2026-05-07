@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import * as readline from "readline";
 import { CommitSuggestion } from "../ai/analyseCommit";
 
 interface SelectedAnswer {
@@ -9,8 +10,24 @@ interface ShouldEditAnswer {
   shouldEdit: boolean;
 }
 
-interface EditedMessageAnswer {
-  editedMessage: string;
+interface ShouldPushAnswer {
+  shouldPush: boolean;
+}
+
+function editMessageWithReadline(defaultMessage: string): Promise<string> {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    rl.question(`✏️  Edit message: `, (answer) => {
+      rl.close();
+      resolve(answer || defaultMessage);
+    });
+
+    rl.write(defaultMessage);
+  });
 }
 
 export async function selectCommitMessage(suggestions: CommitSuggestion[]): Promise<string> {
@@ -42,16 +59,22 @@ export async function selectCommitMessage(suggestions: CommitSuggestion[]): Prom
   ]);
 
   if (shouldEdit) {
-    const { editedMessage } = await inquirer.prompt<EditedMessageAnswer>([
-      {
-        type: "input",
-        name: "editedMessage",
-        message: "Edit the message:",
-        default: selected,
-      },
-    ]);
-    return editedMessage;
+    const editedMessage = await editMessageWithReadline(selected);
+    return editedMessage.trim();
   }
 
   return selected;
+}
+
+export async function confirmPush(): Promise<boolean> {
+  const { shouldPush } = await inquirer.prompt<ShouldPushAnswer>([
+    {
+      type: "confirm",
+      name: "shouldPush",
+      message: "Do you want to push to remote?",
+      default: true,
+    },
+  ]);
+
+  return shouldPush;
 }

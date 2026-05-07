@@ -1,7 +1,7 @@
 import { getStagedDiff } from "./git/gitStagedDiff";
 import { analyseCommit } from "./ai/analyseCommit";
-import { selectCommitMessage } from "./ui/interactive";
-import { createCommit } from "./git/commit";
+import { selectCommitMessage, confirmPush } from "./ui/interactive";
+import { createCommit, pushCommit } from "./git/commit";
 import { setConfig, showConfig } from "./commands/config";
 import { spinner } from "./services/spinner.service";
 
@@ -28,6 +28,13 @@ async function main(): Promise<void> {
     const selectedMessage = await selectCommitMessage(suggestions);
 
     await createCommit(selectedMessage);
+
+    const wantsPush = await confirmPush();
+    if (wantsPush) {
+      await pushCommit();
+    } else {
+      console.log("\n  ⏭️  Push skipped.\n");
+    }
 
     console.log(""); // Final spacing
   } catch (error: unknown) {
