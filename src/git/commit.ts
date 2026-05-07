@@ -5,9 +5,9 @@ const git = simpleGit();
 
 export async function createCommit(message: string): Promise<void> {
   try {
-    spinner.start("Creating commit...");
+    spinner.start("Creating commit…");
     await git.commit(message);
-    spinner.succeed(`Commit created!\n   📝 ${message}`);
+    spinner.succeed(`Committed: ${message}`);
   } catch (error: unknown) {
     spinner.fail("Failed to create commit");
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -17,9 +17,9 @@ export async function createCommit(message: string): Promise<void> {
 
 export async function pushCommit(): Promise<void> {
   try {
-    spinner.start("Pushing to remote...");
+    spinner.start("Pushing to remote…");
     await git.push();
-    spinner.succeed("Pushed to remote successfully!");
+    spinner.succeed("Pushed to remote successfully");
   } catch (error: unknown) {
     spinner.fail("Failed to push");
     const errorMessage = error instanceof Error ? error.message : String(error);

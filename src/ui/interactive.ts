@@ -2,6 +2,15 @@ import inquirer from "inquirer";
 import * as readline from "readline";
 import { CommitSuggestion } from "../ai/analyseCommit";
 
+const CANCEL_VALUE = "__CANCEL__";
+
+export class UserCancelledError extends Error {
+  constructor() {
+    super("Aborted by user");
+    this.name = "UserCancelledError";
+  }
+}
+
 interface SelectedAnswer {
   selected: string;
 }
@@ -31,11 +40,19 @@ function editMessageWithReadline(defaultMessage: string): Promise<string> {
 }
 
 export async function selectCommitMessage(suggestions: CommitSuggestion[]): Promise<string> {
-  const choices = suggestions.map((s) => ({
-    name: `${s.message}\n `,
-    value: s.message,
-    short: s.message,
-  }));
+  const choices = [
+    ...suggestions.map((s) => ({
+      name: `${s.message}\n `,
+      value: s.message,
+      short: s.message,
+    })),
+    new inquirer.Separator(),
+    {
+      name: "\x1b[31m✗ Cancel\x1b[0m",
+      value: CANCEL_VALUE,
+      short: "Cancelled",
+    },
+  ];
 
   console.log(""); // Add space before the prompt
 
@@ -45,9 +62,13 @@ export async function selectCommitMessage(suggestions: CommitSuggestion[]): Prom
       name: "selected",
       message: "Select a commit message:",
       choices,
-      pageSize: 10,
+      pageSize: 12,
     },
   ]);
+
+  if (selected === CANCEL_VALUE) {
+    throw new UserCancelledError();
+  }
 
   const { shouldEdit } = await inquirer.prompt<ShouldEditAnswer>([
     {
